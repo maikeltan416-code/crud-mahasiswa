@@ -1,116 +1,85 @@
-<!DOCTYPE html>
-<html lang="en">
+{{-- 1. Memanggil Parent Layout --}}
+@extends('layouts/admin')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Students | Laravel</title>
+{{-- 2. Mengirim Judul Halaman ke Stack --}}
+@push('title', 'Student')
 
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="/css/bootstrap.min.css">
-</head>
+{{-- 3. Mengisi Area Konten Utama --}}
+@section('content')
+    <div class="card">
+        <div class="card-header">
+            Data Siswa
+            <a href="/student/add" type="button" class="btn btn-primary float-right">
+                Tambah
+            </a>
+        </div>
 
-<body>
-    <div class="container">
-        <div class="container-fluid mt-4">
-            <div class="card">
+        <div class="card-body">
 
-                <div class="card-header">
-                    Data Siswa
-                    <a href="/student/add" type="button" class="btn btn-primary float-right">
-                        Tambah
-                    </a>
+            @if(session('notifikasi'))
+                <div class="alert alert-{{ session('type') }}">
+                    {{ session('notifikasi') }}
                 </div>
+            @endif
 
-                <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <td>No.</td>
+                            <td>NIM</td>
+                            <td>Nama</td>
+                            <td>Prodi</td>
+                            <td>Foto</td>
+                            <td>#</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($students as $index => $data)
+                            <tr>
+                                <td>{{ $index + 1 }}</td>
+                                <td>{{ $data->nim }}</td>
+                                <td>{{ $data->nama }}</td>
+                                <td>{{ $data->prodi }}</td>
 
-                    @if(session('notifikasi'))
-                        <div class="alert alert-{{ session('type') }}">
-                            {{ session('notifikasi') }}
-                        </div>
-                    @endif
+                                <td>
+                                    <img src="{{ asset('storage/' . $data->foto) }}" width="100" class="img-fluid">
+                                </td>
 
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-hover">
+                                <td>
+                                    <a href="/student/edit/{{ $data->nim }}" class="btn btn-sm btn-warning mr-1">
+                                        Edit
+                                    </a>
 
-                            <thead>
-                                <tr>
-                                    <td>No.</td>
-                                    <td>NIM</td>
-                                    <td>Nama</td>
-                                    <td>Prodi</td>
-                                    <td>Foto</td>
-                                    <td>#</td>
-                                </tr>
-                            </thead>
+                                    {{-- Form hapus dibuat d-inline agar sejajar dengan tombol lain --}}
+                                    <form method="POST" action="/student/delete/{{ $data->nim }}" class="d-inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-danger mr-1">
+                                            Hapus
+                                        </button>
+                                    </form>
 
-                            <tbody>
+                                    <a href="/student/download/{{ $data->nim }}" class="btn btn-sm btn-primary mx-1 my-1">
+                                        <i class="bi bi-download"></i>Download
+                                    </a>
 
-                                @forelse ($students as $index => $data)
-                                    <tr>
-
-                                        <td>{{ $index + 1 }}</td>
-                                        <td>{{ $data->nim }}</td>
-                                        <td>{{ $data->nama }}</td>
-                                        <td>{{ $data->prodi }}</td>
-
-                                        <!-- FOTO -->
-                                        <td>
-                                            <img src="{{ asset('storage/' . $data->foto) }}" width="100" class="img-fluid">
-                                        </td>
-
-                                        <!-- AKSI -->
-                                        <td>
-                                            <a href="/student/edit/{{ $data->nim }}" class="btn btn-sm btn-warning mr-1">
-                                                Edit
-                                            </a>
-
-                                            <form method="POST" action="/student/delete/{{ $data->nim }}">
-
-                                                @csrf
-                                                @method('DELETE')
-
-                                                <button type="submit" class="btn btn-sm btn-danger mr-1">
-                                                    Hapus
-                                                </button>
-
-                                            </form>
-
-                                            <a href="/student/download/{{ $data->nim }}"
-                                                class="btn btn-sm btn-primary mx-1 my-1"><i
-                                                    class="bi bi-download"></i>Download</a>
-
-                                            <a href="/student/preview/{{ $data->nim }}"
-                                                class="btn btn-sm btn-info mx-1 my-1"><i class="bi bi-eye"></i>Preview</a>
-                                        </td>
-
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="6">
-                                            Tidak ada data untuk ditampilkan !
-                                        </td>
-                                    </tr>
-                                @endforelse
-
-                            </tbody>
-
-                        </table>
-                    </div>
-
-                </div>
+                                    <a href="/student/preview/{{ $data->nim }}" class="btn btn-sm btn-info mx-1 my-1">
+                                        <i class="bi bi-eye"></i>Preview
+                                    </a>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="text-center">
+                                    Tidak ada data untuk ditampilkan !
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
+
         </div>
     </div>
-
-    <!-- JS -->
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-
-</body>
-
-</html>
+@endsection
